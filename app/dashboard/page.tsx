@@ -38,20 +38,28 @@ export default function DashboardPage() {
   const loadUser = async () => {
 
     const {
-      data,
+      data: { session },
     } =
-      await supabase.auth.getUser();
+      await supabase
+        .auth
+        .getSession();
 
-    if (data.user) {
+    if (
+      session?.user?.email
+    ) {
+
       setUserEmail(
-        data.user.email || ""
+        session.user.email
       );
     }
   };
 
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+
+    await supabase
+      .auth
+      .signOut();
 
     window.location.href =
       "/auth";
@@ -61,25 +69,36 @@ export default function DashboardPage() {
   const handleSubmit =
     async () => {
 
-      await supabase
-        .from("ideas")
-        .insert([
-          {
-            idea,
-            problem,
-          },
-        ]);
+      const { error } =
+        await supabase
+          .from("ideas")
+          .insert([
+            {
+              idea,
+              problem,
+            },
+          ]);
+
+      if (error) {
+        alert(
+          error.message
+        );
+        return;
+      }
 
 
       const response =
         await fetch(
           "/api/analyze",
           {
-            method: "POST",
+            method:
+              "POST",
+
             headers: {
               "Content-Type":
                 "application/json",
             },
+
             body:
               JSON.stringify(
                 {
@@ -92,7 +111,8 @@ export default function DashboardPage() {
 
 
       const data =
-        await response.json();
+        await response
+          .json();
 
       setAnalysis(
         data.analysis
@@ -164,51 +184,73 @@ export default function DashboardPage() {
 
 
         {analysis && (
+
           <div className="border p-6 space-y-3">
 
             <p>
               Startup:
               {" "}
-              {analysis.startup}
+              {
+                analysis.startup
+              }
             </p>
 
             <p>
               Innovation:
               {" "}
-              {analysis.innovationScore}/10
+              {
+                analysis
+                  .innovationScore
+              }/10
             </p>
 
             <p>
               Market:
               {" "}
-              {analysis.marketPotential}
+              {
+                analysis
+                  .marketPotential
+              }
             </p>
 
             <p>
               Feasibility:
               {" "}
-              {analysis.feasibility}
+              {
+                analysis
+                  .feasibility
+              }
             </p>
 
             <p>
               Risk:
               {" "}
-              {analysis.risk}
+              {
+                analysis
+                  .risk
+              }
             </p>
 
             <p>
               Funding:
               {" "}
-              {analysis.fundingReadiness}
+              {
+                analysis
+                  .fundingReadiness
+              }
             </p>
 
             <p>
               Recommendation:
               {" "}
-              {analysis.recommendation}
+              {
+                analysis
+                  .recommendation
+              }
             </p>
 
           </div>
+
         )}
 
       </div>
